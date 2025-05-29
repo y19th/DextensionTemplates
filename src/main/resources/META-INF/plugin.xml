@@ -8,7 +8,9 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description>
-        Makes bridge between Dextension (https://github.com/y19th/Dextension) and Android Studio. It provides ability to create Dextension Architecture Templates.
+        <![CDATA[
+    Makes bridge between <a href="(https://github.com/y19th/Dextension">Dextension</a> and Android Studio. It provides ability to create Dextension Architecture Templates.
+        ]]>
     </description>
 
     <!-- Product and plugin compatibility requirements.
