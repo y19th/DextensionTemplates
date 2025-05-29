@@ -1,0 +1,41 @@
+<idea-plugin>
+    <id>com.y19th.DextensionTemplates</id>
+    <name>Dextension Templates</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor url="https://plugins.jetbrains.com/vendor/e70e3c40-fad2-4b3a-8a31-876affebda00">Oleg Agapchenko</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description>
+        Makes bridge between Dextension (https://github.com/y19th/Dextension) and Android Studio. It provides ability to create Dextension Architecture Templates.
+    </description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+
+    </extensions>
+
+
+    <actions>
+        <group
+                id="DextensionActionsGroup"
+                description="Actions for creating dextension templates">
+            <action
+                    class="com.y19th.dextensiontemplates.DextensionFullTemplate"
+                    id="DextensionFullTemplateIdentifier"
+                    text="Create Full Dextension Template"
+                    description="Creating full dextension template with koin DI module"
+                    icon="AllIcons.Actions.NewFolder"/>
+            <add-to-group
+                    group-id="NewGroup"
+                    anchor="before"
+                    relative-to-action="NewFile"/>
+        </group>
+    </actions>
+</idea-plugin>
