@@ -5,9 +5,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiDirectory
+import kotlin.text.isNotBlank
+import kotlin.text.isNotEmpty
 
-
-class DextensionFullTemplate : AnAction() {
+class DextensionStateTemplate : AnAction() {
 
     private val actionTitle = "Dextension Feature Template"
 
@@ -26,19 +27,6 @@ class DextensionFullTemplate : AnAction() {
             if (psiElement != null && psiElement is PsiDirectory) {
                 psiElement.also { element ->
                     element.createDirectory("logic") { logic ->
-                        logic.createFile("${input}Events.kt") { events ->
-                            events.writeWithPackage(
-                                """
-                                    import com.y19th.dextension.core.BaseEvents
-                                    
-                                    internal sealed interface ${input}Events : BaseEvents {
-                                        
-                                        data object OnNavigateBack: ${input}Events
-                                    }
-                                """.trimIndent()
-                            )
-                        }
-
                         logic.createFile("${input}State.kt") { state ->
                             state.writeWithPackage(
                                 """
@@ -57,22 +45,15 @@ class DextensionFullTemplate : AnAction() {
                                 """
                                     import com.arkivanov.decompose.ComponentContext
                                     import ${element.getSubdirectory("logic")?.packageName()}.${input}State
-                                    import ${element.getSubdirectory("logic")?.packageName()}.${input}Events
-                                    import com.y19th.dextension.core.ScreenComponent
+                                    import com.y19th.dextension.core.StateComponent
                                     
                                     internal class ${input}Component(
                                         componentContext: ComponentContext
-                                    ): ScreenComponent<${input}State, ${input}Events>(
+                                    ): StateComponent<${input}State, ${input}Events>(
                                         componentContext = componentContext,
                                         initialState = ${input}State()
                                     ){
-                                        override fun handleEvent(event: ${input}Events) {
-                                            when(event) {
-                                                ${input}Events.OnNavigateBack -> {
-                                                    TODO()
-                                                }
-                                            }
-                                        }
+                                        
                                     }
                                 """.trimIndent()
 
@@ -83,14 +64,12 @@ class DextensionFullTemplate : AnAction() {
                                 """
                                     import androidx.compose.runtime.Composable
                                     import com.y19th.dextension.compose.collectAsImmediateState
-                                    import com.y19th.dextension.compose.rememberHandleEvents
                                     
                                     @Composable
                                     internal fun ${input}Content(
                                         component: ${input}Component
                                     ) { 
                                         val state = component.state.collectAsImmediateState()
-                                        val handleEvents = component.rememberHandleEvents()
                                     }
                                 """.trimIndent()
 

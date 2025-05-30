@@ -5,9 +5,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiDirectory
+import kotlin.text.isNotBlank
+import kotlin.text.isNotEmpty
+import kotlin.text.lowercase
 
-
-class DextensionFullTemplate : AnAction() {
+class DextensionEventsTemplate : AnAction() {
 
     private val actionTitle = "Dextension Feature Template"
 
@@ -38,33 +40,19 @@ class DextensionFullTemplate : AnAction() {
                                 """.trimIndent()
                             )
                         }
-
-                        logic.createFile("${input}State.kt") { state ->
-                            state.writeWithPackage(
-                                """
-                                import com.y19th.dextension.core.BaseState
-
-                                internal data class ${input}State(
-                                	val isLoading: Boolean = false
-                                ): BaseState
-                            """.trimIndent()
-                            )
-                        }
                     }
                     element.createDirectory("ui") { ui ->
                         ui.createFile("${input}Component.kt") { component ->
                             component.writeWithPackage(
                                 """
                                     import com.arkivanov.decompose.ComponentContext
-                                    import ${element.getSubdirectory("logic")?.packageName()}.${input}State
                                     import ${element.getSubdirectory("logic")?.packageName()}.${input}Events
-                                    import com.y19th.dextension.core.ScreenComponent
+                                    import com.y19th.dextension.core.EventComponent
                                     
                                     internal class ${input}Component(
                                         componentContext: ComponentContext
-                                    ): ScreenComponent<${input}State, ${input}Events>(
+                                    ): EventComponent<${input}Events>(
                                         componentContext = componentContext,
-                                        initialState = ${input}State()
                                     ){
                                         override fun handleEvent(event: ${input}Events) {
                                             when(event) {
@@ -82,14 +70,12 @@ class DextensionFullTemplate : AnAction() {
                             component.writeWithPackage(
                                 """
                                     import androidx.compose.runtime.Composable
-                                    import com.y19th.dextension.compose.collectAsImmediateState
                                     import com.y19th.dextension.compose.rememberHandleEvents
                                     
                                     @Composable
                                     internal fun ${input}Content(
                                         component: ${input}Component
                                     ) { 
-                                        val state = component.state.collectAsImmediateState()
                                         val handleEvents = component.rememberHandleEvents()
                                     }
                                 """.trimIndent()
