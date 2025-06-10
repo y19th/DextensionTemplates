@@ -1,165 +1,33 @@
 package com.y19th.dextensiontemplates
 
-import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiDirectory
+import com.y19th.dextensiontemplates.file.File
+import com.y19th.dextensiontemplates.file.Folder
+import com.y19th.dextensiontemplates.file.createFile
+import com.y19th.dextensiontemplates.file.createFolder
+import com.y19th.dextensiontemplates.option.DependencyInjection
+import com.y19th.dextensiontemplates.option.ScreenOption
 
 
-class DextensionFullTemplate : AnAction() {
+class DextensionFullTemplate : DextensionAction() {
 
-    private val actionTitle = "Dextension Feature Template"
-
-    override fun actionPerformed(p0: AnActionEvent) {
-
-        val input = Messages.showInputDialog(
-            p0.project,
-            "Enter a header of your feature (Main in MainFeature)",
-            actionTitle,
-            Messages.getQuestionIcon()
-        )
-
-        if (input != null && (input.isNotEmpty() || input.isNotBlank())) {
-            val psiElement = p0.getData(CommonDataKeys.PSI_ELEMENT)
-
-            if (psiElement != null && psiElement is PsiDirectory) {
-                psiElement.also { element ->
-                    element.createDirectory("logic") { logic ->
-                        logic.createFile("${input}Events.kt") { events ->
-                            events.writeWithPackage(
-                                """
-                                    import com.y19th.dextension.core.BaseEvents
-                                    
-                                    internal sealed interface ${input}Events : BaseEvents {
-                                        
-                                        data object OnNavigateBack: ${input}Events
-                                    }
-                                """.trimIndent()
-                            )
-                        }
-
-                        logic.createFile("${input}State.kt") { state ->
-                            state.writeWithPackage(
-                                """
-                                import com.y19th.dextension.core.BaseState
-
-                                internal data class ${input}State(
-                                	val isLoading: Boolean = false
-                                ): BaseState
-                            """.trimIndent()
-                            )
-                        }
-                    }
-                    element.createDirectory("ui") { ui ->
-                        ui.createFile("${input}Component.kt") { component ->
-                            component.writeWithPackage(
-                                """
-                                    import com.arkivanov.decompose.ComponentContext
-                                    import ${element.getSubdirectory("logic")?.packageName()}.${input}State
-                                    import ${element.getSubdirectory("logic")?.packageName()}.${input}Events
-                                    import com.y19th.dextension.core.ScreenComponent
-                                    
-                                    internal class ${input}Component(
-                                        componentContext: ComponentContext
-                                    ): ScreenComponent<${input}State, ${input}Events>(
-                                        componentContext = componentContext,
-                                        initialState = ${input}State()
-                                    ){
-                                        override fun handleEvent(event: ${input}Events) {
-                                            when(event) {
-                                                ${input}Events.OnNavigateBack -> {
-                                                    TODO()
-                                                }
-                                            }
-                                        }
-                                    }
-                                """.trimIndent()
-
-                            )
-                        }
-                        ui.createFile("${input}Content.kt") { component ->
-                            component.writeWithPackage(
-                                """
-                                    import androidx.compose.runtime.Composable
-                                    import com.y19th.dextension.compose.collectAsImmediateState
-                                    import com.y19th.dextension.compose.rememberHandleEvents
-                                    
-                                    @Composable
-                                    internal fun ${input}Content(
-                                        component: ${input}Component
-                                    ) { 
-                                        val state = component.state.collectAsImmediateState()
-                                        val handleEvents = component.rememberHandleEvents()
-                                    }
-                                """.trimIndent()
-
-                            )
-                        }
-                        ui.createFile("${input}Screen.kt") { component ->
-                            component.writeWithPackage(
-                                """
-                                    import androidx.compose.runtime.Composable
-                                    import com.arkivanov.decompose.ComponentContext
-                                    import com.y19th.dextension.koin.getComponent
-                                    import com.y19th.dextension.koin.KoinScreen
-                                    import ${ui.packageName()}.${input}Component
-                                    
-                                    interface ${input}Screen : KoinScreen
-
-                                    internal class ${input}ScreenImpl(
-                                        override val componentContext: ComponentContext
-                                    ) : ${input}Screen {
-
-                                        private val component: ${input}Component = getComponent(componentContext)
-
-                                        @Composable
-                                        override fun Content() {
-                                            ${input}Content(component)
-                                        }
-                                    }
-                                """.trimIndent()
-                            )
-                        }
-                    }
-                    element.createDirectory("di") { di ->
-                        di.createFile("${input}Module.kt") { file ->
-                            file.writeWithPackage(
-                                """
-                                    import org.koin.core.module.dsl.factoryOf
-                                    import org.koin.dsl.bind
-                                    import org.koin.dsl.module
-                                    import ${element.getSubdirectory("ui")?.packageName()}.${input}Component
-                                    import ${element.getSubdirectory("ui")?.packageName()}.${input}Screen
-                                    import ${element.getSubdirectory("ui")?.packageName()}.${input}ScreenImpl
-                                    
-                                    val ${input.lowercase()}Module = module {
-                                        factoryOf(::${input}Component)
-                                        factoryOf(::${input}ScreenImpl).bind<${input}Screen>()
-                                    }
-                                """.trimIndent()
-
-                            )
-                        }
-                    }
-
-                }
-            } else {
-                showErrorDialog(
-                    "You should create this template into directory"
-                )
+    override fun onAction(event: AnActionEvent, input: String, directory: PsiDirectory, option: DependencyInjection) {
+        directory.apply {
+            createFolder(Folder.Logic) { logic ->
+                logic.createFile(File.Events(input))
+                logic.createFile(File.State(input))
             }
-        } else {
-            showErrorDialog(
-                "You should enter a valid header, it can not be empty or blank"
-            )
-        }
-    }
+            createFolder(Folder.Ui) { ui ->
+                ui.createFile(File.Component(input, ScreenOption.Default))
+                ui.createFile(File.Content(input, ScreenOption.Default))
+                ui.createFile(File.Screen(input, option))
+            }
 
-    private fun showErrorDialog(message: String) {
-        Messages.showErrorDialog(
-            message,
-            actionTitle
-        )
+            if (option == DependencyInjection.Koin)
+                createFolder(Folder.Di) {
+                    it.createFile(File.DependencyModule(input))
+                }
+        }
     }
 }

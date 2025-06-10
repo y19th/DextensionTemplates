@@ -20,7 +20,6 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-
     </extensions>
 
 
@@ -28,7 +27,7 @@
         <group
                 id="DextensionActionsGroup"
                 description="Actions for creating dextension templates"
-                text = "Dextension Templates"
+                text="Dextension Templates"
                 icon="AllIcons.Actions.NewFolder"
                 popup="true">
             <action
