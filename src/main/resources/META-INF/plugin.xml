@@ -28,7 +28,7 @@
                 id="DextensionActionsGroup"
                 description="Actions for creating dextension templates"
                 text="Dextension Templates"
-                icon="AllIcons.Actions.NewFolder"
+                icon="icons/action.svg"
                 popup="true">
             <action
                     class="com.y19th.dextensiontemplates.actions.DextensionFullTemplate"
