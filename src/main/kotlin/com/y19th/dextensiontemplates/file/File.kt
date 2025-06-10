@@ -5,9 +5,6 @@ import com.y19th.dextensiontemplates.createFile
 import com.y19th.dextensiontemplates.getSubdirectory
 import com.y19th.dextensiontemplates.option.DependencyInjection
 import com.y19th.dextensiontemplates.option.ScreenOption
-import com.y19th.dextensiontemplates.option.onEffectOption
-import com.y19th.dextensiontemplates.option.onEventOption
-import com.y19th.dextensiontemplates.option.onStateOption
 import com.y19th.dextensiontemplates.packageName
 import com.y19th.dextensiontemplates.writeWithPackage
 
@@ -135,9 +132,9 @@ sealed class File(val title: String) {
                 ScreenOption.Effect ->
                     """
                         import com.arkivanov.decompose.ComponentContext
-                        ${option.onStateOption { "import ${getSubdirectory("logic")?.packageName()}.${input}State" }}
-                        ${option.onEventOption { "import ${getSubdirectory("logic")?.packageName()}.${input}Events" }}
-                        ${option.onEventOption { "import ${getSubdirectory("logic")?.packageName()}.${input}Effects" }}
+                        import ${getSubdirectory("logic")?.packageName()}.${input}State
+                        import ${getSubdirectory("logic")?.packageName()}.${input}Events
+                        import ${getSubdirectory("logic")?.packageName()}.${input}Effects
                         import com.y19th.dextension.core.ScreenWithEffectComponent
                         
                         internal class ${input}Component(
