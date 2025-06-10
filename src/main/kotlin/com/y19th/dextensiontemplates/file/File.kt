@@ -5,6 +5,7 @@ import com.y19th.dextensiontemplates.createFile
 import com.y19th.dextensiontemplates.getSubdirectory
 import com.y19th.dextensiontemplates.option.DependencyInjection
 import com.y19th.dextensiontemplates.option.ScreenOption
+import com.y19th.dextensiontemplates.option.onEffectOption
 import com.y19th.dextensiontemplates.option.onEventOption
 import com.y19th.dextensiontemplates.option.onStateOption
 import com.y19th.dextensiontemplates.packageName
@@ -71,6 +72,21 @@ sealed class File(val title: String) {
         }
     }
 
+    data class Effects(private val input: String) : File(
+        title = "${input}Effects.kt"
+    ) {
+        override fun PsiDirectory.content(): String {
+            return """
+                import com.y19th.dextension.core.BaseEffects
+                                    
+                internal sealed interface ${input}Effects : BaseEffects {
+                    
+                    data object Foo: ${input}Effects
+                }
+            """.trimIndent()
+        }
+    }
+
     data class Component(
         private val input: String,
         private val option: ScreenOption
@@ -83,7 +99,7 @@ sealed class File(val title: String) {
                     """
                         import com.arkivanov.decompose.ComponentContext
                         import ${getSubdirectory("logic")?.packageName()}.${input}State
-                        import com.y19th.dextension.core.ScreenComponent
+                        import com.y19th.dextension.core.StateComponent
                         
                         internal class ${input}Component(
                             componentContext: ComponentContext
@@ -99,7 +115,7 @@ sealed class File(val title: String) {
                     """
                         import com.arkivanov.decompose.ComponentContext
                         import ${getSubdirectory("logic")?.packageName()}.${input}Events
-                        import com.y19th.dextension.core.ScreenComponent
+                        import com.y19th.dextension.core.EventComponent
                         
                         internal class ${input}Component(
                             componentContext: ComponentContext
@@ -121,11 +137,12 @@ sealed class File(val title: String) {
                         import com.arkivanov.decompose.ComponentContext
                         ${option.onStateOption { "import ${getSubdirectory("logic")?.packageName()}.${input}State" }}
                         ${option.onEventOption { "import ${getSubdirectory("logic")?.packageName()}.${input}Events" }}
-                        import com.y19th.dextension.core.ScreenComponent
+                        ${option.onEventOption { "import ${getSubdirectory("logic")?.packageName()}.${input}Effects" }}
+                        import com.y19th.dextension.core.ScreenWithEffectComponent
                         
                         internal class ${input}Component(
                             componentContext: ComponentContext
-                        ): ScreenComponent<${input}State, ${input}Events>(
+                        ): ScreenWithEffectComponent<${input}State, ${input}Events, ${input}Effects>(
                             componentContext = componentContext,
                             initialState = ${input}State()
                         ){
@@ -172,19 +189,75 @@ sealed class File(val title: String) {
         title = "${input}Content.kt"
     ) {
         override fun PsiDirectory.content(): String {
-            return """
-                import androidx.compose.runtime.Composable
-                ${option.onStateOption { "import com.y19th.dextension.compose.collectAsImmediateState" }}
-                ${option.onEventOption { "import com.y19th.dextension.compose.rememberHandleEvents" }}               
-                
-                @Composable
-                internal fun ${input}Content(
-                    component: ${input}Component
-                ) { 
-                    ${option.onStateOption { "val state = component.state.collectAsImmediateState()" }}
-                    ${option.onEventOption { "val handleEvents = component.rememberHandleEvents()" }}
+            return when (option) {
+                ScreenOption.State -> {
+                    """
+                        import androidx.compose.runtime.Composable
+                        import com.y19th.dextension.compose.collectAsImmediateState
+                        
+                        @Composable
+                        internal fun ${input}Content(
+                            component: ${input}Component
+                        ) { 
+                            val state = component.state.collectAsImmediateState()                
+                        }
+                    """.trimIndent()
                 }
-            """.trimIndent()
+
+                ScreenOption.Event -> {
+                    """
+                        import androidx.compose.runtime.Composable
+                        import com.y19th.dextension.compose.rememberHandleEvents
+                        
+                        @Composable
+                        internal fun ${input}Content(
+                            component: ${input}Component
+                        ) { 
+                            val handleEvents = component.rememberHandleEvents()               
+                        }
+                    """.trimIndent()
+                }
+
+                ScreenOption.Effect -> {
+                    """
+                        import androidx.compose.runtime.Composable
+                        import com.y19th.dextension.compose.collectAsImmediateState
+                        import com.y19th.dextension.compose.rememberHandleEvents
+                        import com.y19th.dextension.compose.SubscribedEffect
+                        import ${getSubdirectory("logic")?.packageName()}.${input}Effects
+                        
+                        @Composable
+                        internal fun ${input}Content(
+                            component: ${input}Component
+                        ) { 
+                            val state = component.state.collectAsImmediateState()
+                            val handleEvents = component.rememberHandleEvents()
+                                          
+                            SubscribedEffect(component) { effect ->
+                                when(effect) {
+                                    ${input}Effects.Foo -> TODO()                                
+                                }
+                            }
+                        }
+                    """.trimIndent()
+                }
+
+                ScreenOption.Default -> {
+                    """
+                        import androidx.compose.runtime.Composable
+                        import com.y19th.dextension.compose.collectAsImmediateState
+                        import com.y19th.dextension.compose.rememberHandleEvents
+                        
+                        @Composable
+                        internal fun ${input}Content(
+                            component: ${input}Component
+                        ) { 
+                            val state = component.state.collectAsImmediateState()
+                            val handleEvents = component.rememberHandleEvents()                
+                        }
+                    """.trimIndent()
+                }
+            }
         }
     }
 

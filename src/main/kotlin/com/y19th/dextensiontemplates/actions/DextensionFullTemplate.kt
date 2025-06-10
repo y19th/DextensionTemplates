@@ -1,4 +1,4 @@
-package com.y19th.dextensiontemplates
+package com.y19th.dextensiontemplates.actions
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.psi.PsiDirectory

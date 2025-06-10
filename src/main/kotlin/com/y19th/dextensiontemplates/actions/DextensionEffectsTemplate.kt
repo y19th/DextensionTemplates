@@ -1,0 +1,33 @@
+package com.y19th.dextensiontemplates.actions
+
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.psi.PsiDirectory
+import com.y19th.dextensiontemplates.file.File
+import com.y19th.dextensiontemplates.file.Folder
+import com.y19th.dextensiontemplates.file.createFile
+import com.y19th.dextensiontemplates.file.createFolder
+import com.y19th.dextensiontemplates.option.DependencyInjection
+import com.y19th.dextensiontemplates.option.ScreenOption
+
+class DextensionEffectsTemplate : DextensionAction() {
+
+    override fun onAction(event: AnActionEvent, input: String, directory: PsiDirectory, option: DependencyInjection) {
+        directory.apply {
+            createFolder(Folder.Logic) { logic ->
+                logic.createFile(File.Events(input))
+                logic.createFile(File.State(input))
+                logic.createFile(File.Effects(input))
+            }
+            createFolder(Folder.Ui) { ui ->
+                ui.createFile(File.Component(input, ScreenOption.Effect))
+                ui.createFile(File.Content(input, ScreenOption.Effect))
+                ui.createFile(File.Screen(input, option))
+            }
+
+            if (option == DependencyInjection.Koin)
+                createFolder(Folder.Di) {
+                    it.createFile(File.DependencyModule(input))
+                }
+        }
+    }
+}

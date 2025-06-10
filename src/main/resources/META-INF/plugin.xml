@@ -31,22 +31,28 @@
                 icon="AllIcons.Actions.NewFolder"
                 popup="true">
             <action
-                    class="com.y19th.dextensiontemplates.DextensionFullTemplate"
+                    class="com.y19th.dextensiontemplates.actions.DextensionFullTemplate"
                     id="DextensionFullTemplateIdentifier"
                     text="Create Full Dextension Template"
                     description="Creating full dextension template with koin DI module"
                     icon="AllIcons.Actions.AddFile"/>
             <action
-                    class="com.y19th.dextensiontemplates.DextensionStateTemplate"
+                    class="com.y19th.dextensiontemplates.actions.DextensionStateTemplate"
                     id="DextensionStateTemplateIdentifier"
                     text="Create State Dextension Template"
                     description="Creating state dextension template without events class"
                     icon="AllIcons.Actions.AddFile"/>
             <action
-                    class="com.y19th.dextensiontemplates.DextensionEventsTemplate"
+                    class="com.y19th.dextensiontemplates.actions.DextensionEventsTemplate"
                     id="DextensionEventsTemplateIdentifier"
                     text="Create Events Dextension Template"
                     description="Creating events dextension template without state class"
+                    icon="AllIcons.Actions.AddFile"/>
+            <action
+                    class="com.y19th.dextensiontemplates.actions.DextensionEffectsTemplate"
+                    id="DextensionEffectsTemplateIdentifier"
+                    text="Create Effects Dextension Template"
+                    description="Creating effects dextension template with side effects"
                     icon="AllIcons.Actions.AddFile"/>
 
             <add-to-group
