@@ -2,7 +2,6 @@ package com.y19th.dextensiontemplates.dialog
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.openapi.ui.Messages
 import com.intellij.ui.components.JBRadioButton
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.dsl.builder.Cell
